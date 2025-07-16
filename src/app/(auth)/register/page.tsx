@@ -16,10 +16,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-// ✅ Regex: Letters, numbers, special characters
+// ✅ Regex for password
 const passwordRegex = /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+$/;
 
-// ✅ Schema definition
+// ✅ Zod Schema
 const formSchema = z
   .object({
     username: z.string().min(8, {
@@ -67,145 +67,164 @@ const Page = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Username */}
-          <FormField
-            control={form.control}
-            name="username"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Username</FormLabel>
-                <FormControl>
-                  <Input placeholder="yourusername" {...field} />
-                </FormControl>
-                <FormDescription>
-                  This is your public display name.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+      <div className="w-full max-w-md bg-white shadow-xl rounded-2xl p-8 space-y-6">
+        <h2 className="text-2xl font-bold text-center text-gray-800">
+          Create an Account
+        </h2>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+            {/* Username */}
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-gray-700">Username</FormLabel>
+                  <FormControl>
+                    <Input placeholder="yourusername" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    This is your public display name.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          {/* Email */}
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input placeholder="you@example.com" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            {/* Email */}
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-gray-700">Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="you@example.com"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          {/* Password */}
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input type="password" placeholder="••••••••" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            {/* Password */}
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-gray-700">Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="••••••••" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          {/* Confirm Password */}
-          <FormField
-            control={form.control}
-            name="confirmPassword"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Confirm Password</FormLabel>
-                <FormControl>
-                  <Input type="password" placeholder="••••••••" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            {/* Confirm Password */}
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-gray-700">
+                    Confirm Password
+                  </FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="••••••••" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          {/* Photo Upload with Validation */}
-          <FormField
-            control={form.control}
-            name="photo"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Profile Photo</FormLabel>
-                <FormControl>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
+            {/* Photo Upload */}
+            <FormField
+              control={form.control}
+              name="photo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-gray-700">Profile Photo</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
 
-                      // ✅ File size check: max 2MB
-                      if (file.size > 2 * 1024 * 1024) {
-                        form.setError("photo", {
-                          type: "manual",
-                          message: "Image must be smaller than 2MB.",
-                        });
-                        return;
-                      }
+                        // File size check
+                        if (file.size > 2 * 1024 * 1024) {
+                          form.setError("photo", {
+                            type: "manual",
+                            message: "Image must be smaller than 2MB.",
+                          });
+                          return;
+                        }
 
-                      const reader = new FileReader();
-                      reader.onloadend = () => {
-                        const img = new Image();
-                        img.onload = () => {
-                          // ✅ Dimension check: max 500x500px
-                          if (img.width > 500 || img.height > 500) {
-                            form.setError("photo", {
-                              type: "manual",
-                              message: "Image must be max 500x500 pixels.",
-                            });
-                            return;
-                          }
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          const img = new Image();
+                          img.onload = () => {
+                            if (img.width > 500 || img.height > 500) {
+                              form.setError("photo", {
+                                type: "manual",
+                                message: "Image must be max 500x500 pixels.",
+                              });
+                              return;
+                            }
 
-                          // ✅ All good
-                          form.clearErrors("photo");
-                          field.onChange(file);
-                          setPreview(reader.result as string);
+                            form.clearErrors("photo");
+                            field.onChange(file);
+                            setPreview(reader.result as string);
+                          };
+                          img.src = reader.result as string;
                         };
-                        img.src = reader.result as string;
-                      };
-                      reader.readAsDataURL(file);
-                    }}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Upload your profile photo (max 2MB, 500x500px).
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
+                        reader.readAsDataURL(file);
+                      }}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Upload your profile photo (max 2MB, 500x500px).
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Preview */}
+            {preview && (
+              <div className="mt-4 flex justify-center">
+                <img
+                  src={preview}
+                  alt="Preview"
+                  className="w-24 h-24 rounded-full object-cover border shadow"
+                />
+              </div>
             )}
-          />
 
-          {/* Preview */}
-          {preview && (
-            <div className="mt-4">
-              <img
-                src={preview}
-                alt="Preview"
-                className="w-32 h-32 rounded-full object-cover border"
-              />
-            </div>
-          )}
+            {/* Submit */}
+            <Button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-all"
+            >
+              Register
+            </Button>
+          </form>
+        </Form>
 
-          {/* Submit */}
-          <Button type="submit" className="w-full">
-            Submit
-          </Button>
-        </form>
-      </Form>
+        <p className="text-sm text-center text-gray-500">
+          Already have an account?{" "}
+          <a href="#" className="text-blue-600 hover:underline">
+            Login
+          </a>
+        </p>
+      </div>
     </div>
   );
 };
