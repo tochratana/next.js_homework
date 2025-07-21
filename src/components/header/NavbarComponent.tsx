@@ -4,6 +4,7 @@ import Link from "next/link";
 import { navLink } from "./menu";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
+import CartIcon from "../card-user/CartIcon";
 
 export default function NavbarComponent() {
   const pathname = usePathname();
@@ -113,6 +114,7 @@ export default function NavbarComponent() {
             >
               Get Started
             </Link>
+            <CartIcon />
           </div>
 
           {/* Mobile Menu Button */}

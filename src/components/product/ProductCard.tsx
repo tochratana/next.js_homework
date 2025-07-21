@@ -1,6 +1,11 @@
+"use client";
 import { ProductType } from "@/types/productType";
 import Image from "next/image";
 import React from "react";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { addToCart, selectCartItemById } from "../../lib/features/cartSlice";
+
+interface ProductCardProps extends ProductType {}
 
 export default function ProductCard({
   id,
@@ -9,7 +14,26 @@ export default function ProductCard({
   price,
   thumbnail,
   category,
-}: ProductType) {
+}: ProductCardProps) {
+  const dispatch = useAppDispatch();
+  const cartItem = useAppSelector((state) => selectCartItemById(state, id));
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent navigation when clicking add to cart
+    e.stopPropagation(); // Stop event bubbling
+
+    const product: ProductType = {
+      id,
+      title,
+      description,
+      price,
+      thumbnail,
+      category,
+    };
+
+    dispatch(addToCart(product));
+  };
+
   return (
     <div
       key={id}
@@ -30,10 +54,19 @@ export default function ProductCard({
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         </div>
 
-        {/* Sale Badge */}
-        <div className="absolute top-3 right-3 bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg transform rotate-3 hover:rotate-0 transition-transform duration-200">
-          SALE
-        </div>
+        {/* Cart Quantity Badge - only show if item is in cart */}
+        {cartItem && (
+          <div className="absolute top-3 right-3 bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg z-10">
+            In Cart: {cartItem.quantity}
+          </div>
+        )}
+
+        {/* Sale Badge - only show if no cart item */}
+        {!cartItem && (
+          <div className="absolute top-3 right-3 bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg transform rotate-3 hover:rotate-0 transition-transform duration-200">
+            SALE
+          </div>
+        )}
 
         {/* Category Badge */}
         <div className="absolute top-3 left-3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm text-gray-700 dark:text-gray-300 px-3 py-1 rounded-full text-xs font-medium border border-gray-200/50 dark:border-gray-600/50">
@@ -42,8 +75,11 @@ export default function ProductCard({
 
         {/* Quick Action Button - appears on hover */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
-          <button className="bg-white/20 backdrop-blur-md text-white border-2 border-white/30 px-6 py-3 rounded-full font-semibold hover:bg-white/30 transition-all duration-200 transform scale-90 group-hover:scale-100">
-            See more
+          <button
+            onClick={handleAddToCart}
+            className="bg-white/20 backdrop-blur-md text-white border-2 border-white/30 px-6 py-3 rounded-full font-semibold hover:bg-white/30 transition-all duration-200 transform scale-90 group-hover:scale-100"
+          >
+            {cartItem ? "Add More" : "Add to Cart"}
           </button>
         </div>
       </div>
@@ -71,8 +107,11 @@ export default function ProductCard({
             </span>
           </div>
 
-          <button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 active:scale-95">
-            Add to Cart
+          <button
+            onClick={handleAddToCart}
+            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 active:scale-95"
+          >
+            {cartItem ? `Add More (${cartItem.quantity})` : "Add to Cart"}
           </button>
         </div>
 
